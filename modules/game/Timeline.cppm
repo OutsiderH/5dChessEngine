@@ -9,11 +9,11 @@ using namespace Engine::Type;
 using namespace Engine::Game;
 using namespace Engine::Collection;
 
-export namespace Engine::Game {
-    class Timeline {
+namespace Engine::Game {
+    export class Timeline {
     private:
         Vector<Board> boards;
-        u32 startTime;
+        u32 startTime = 0;
         inline u32 LocalToGlobal(u32 local) const noexcept {
             return startTime + local;
         }
@@ -28,6 +28,12 @@ export namespace Engine::Game {
         inline Timeline(Timeline&& other) noexcept :
             boards(Move(other.boards)),
             startTime(other.startTime) {}
+        inline Timeline(const Board& copyFrom, u32 startTime) :
+            boards(1, copyFrom),
+            startTime(startTime) {}
+        inline Timeline(const Vector<Board>& boards, u32 startTime) :
+            boards(boards),
+            startTime(startTime) {}
         inline u32 GetStartTime() const noexcept {
             return startTime;
         }

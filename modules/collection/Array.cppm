@@ -11,8 +11,8 @@ import Engine.Type.Util;
 
 using namespace Engine::Type;
 
-export namespace Engine::Collection {
-    template <typename ElementType, u64 size, u64 align = sizeof(ElementType)>
+namespace Engine::Collection {
+    export template <typename ElementType, u64 size, u64 align = sizeof(ElementType)>
     requires (
         !IsReference<ElementType>::Result
         && CopyConstructible<ElementType>
@@ -20,15 +20,14 @@ export namespace Engine::Collection {
         && Destructible<ElementType>
         && size != 0
         && align >= sizeof(ElementType)
-        && (align & (align - 1)) == 0
     )
     class Array {
     private:
-        constexpr static bool MC = MoveConstructible<ElementType>;
-        constexpr static bool NTDC = NonThrowDefaultConstructible<ElementType>;
-        constexpr static bool NTCC = NonThrowCopyConstructible<ElementType>;
-        constexpr static bool NTMC = NonThrowMoveConstructible<ElementType>;
-        constexpr static bool NTD = NonThrowDestructible<ElementType>;
+        static constexpr bool MC = MoveConstructible<ElementType>;
+        static constexpr bool NTDC = NonThrowDefaultConstructible<ElementType>;
+        static constexpr bool NTCC = NonThrowCopyConstructible<ElementType>;
+        static constexpr bool NTMC = NonThrowMoveConstructible<ElementType>;
+        static constexpr bool NTD = NonThrowDestructible<ElementType>;
         byte data[size * align];
         inline ElementType* IndexToPointer(u64 index) noexcept {
             return reinterpret_cast<ElementType*>(data + index * align);

@@ -11,101 +11,151 @@ import Engine.Type.Util;
 
 using namespace Engine::Type;
 
-export namespace Engine::Collection {
+namespace Engine::Collection {
     // todo:
     // use standard collection interface at AppendRange()
     // move version for some methods
-    template <typename ElementType, u64 align = sizeof(ElementType)>
+    export template <typename ElementType, u64 align = sizeof(ElementType)>
     requires (
         !IsReference<ElementType>::Result
         && CopyConstructible<ElementType>
         && DefaultConstructible<ElementType>
         && Destructible<ElementType>
         && align >= sizeof(ElementType)
-        && (align & (align - 1)) == 0
     )
-    class Vector {
-    private:
-        constexpr static bool MC = MoveConstructible<ElementType>;
-        constexpr static bool NTD = NonThrowDestructible<ElementType>;
-        byte* data;
-        u64 capacity;
-        u64 size;
-        inline ElementType* IndexToPointer(u64 index) noexcept {
-            return reinterpret_cast<ElementType*>(data + index * align);
-        }
-        inline const ElementType* IndexToPointer(u64 index) const noexcept {
-            return reinterpret_cast<const ElementType*>(data + index * align);
-        }
-    public:
-        inline Vector() noexcept {}
-        inline Vector(const Vector& other) :
-            data(new byte[other.capacity * align]),
-            capacity(other.capacity),
-            size(other.size) {
-            for (u64 i = 0; i < size; ++i) {
-                new (IndexToPointer(i)) ElementType(other[i]);
+        class Vector {
+        private:
+            static constexpr bool MC = MoveConstructible<ElementType>;
+            static constexpr bool NTD = NonThrowDestructible<ElementType>;
+            byte* data = nullptr;
+            u64 capacity = 0;
+            u64 size = 0;
+            inline ElementType* IndexToPointer(u64 index) noexcept {
+                return reinterpret_cast<ElementType*>(data + index * align);
             }
-        }
-        inline Vector(Vector&& other) noexcept :
-            data(other.data),
-            capacity(other.capacity),
-            size(other.size) {
-            other.data = nullptr;
-        }
-        inline Vector(std::initializer_list<ElementType> list) : 
-            capacity(list.size()){
-            data = new byte[capacity * align];
-            size = capacity;
-            for (u64 i = 0; i < size; ++i) {
-                if constexpr (MC) {
-                    new (IndexToPointer(i)) ElementType(Move(list.begin()[i]));
-                }
-                else {
-                    new (IndexToPointer(i)) ElementType(list.begin()[i]);
+            inline const ElementType* IndexToPointer(u64 index) const noexcept {
+                return reinterpret_cast<const ElementType*>(data + index * align);
+            }
+        public:
+            inline Vector() noexcept {}
+            inline Vector(const Vector& other) :
+                data(new byte[other.capacity * align]),
+                capacity(other.capacity),
+                size(other.size) {
+                for (u64 i = 0; i < size; ++i) {
+                    new (IndexToPointer(i)) ElementType(other[i]);
                 }
             }
-        }
-        inline Vector(u64 size) :
-            data(new byte[size * align]),
-            capacity(size),
-            size(size) {
-            for (u64 i = 0; i < size; ++i) {
-                new (IndexToPointer(i)) ElementType();
+            inline Vector(Vector&& other) noexcept :
+                data(other.data),
+                capacity(other.capacity),
+                size(other.size) {
+                other.data = nullptr;
             }
-        }
-        inline Vector(u64 size, const ElementType& fill) :
-            data(new byte[size * align]),
-            capacity(size),
-            size(size) {
-            for (u64 i = 0; i < size; ++i) {
-                new (IndexToPointer(i)) ElementType(fill);
+            inline Vector(std::initializer_list<ElementType> list) :
+                capacity(list.size()) {
+                data = new byte[capacity * align];
+                size = capacity;
+                for (u64 i = 0; i < size; ++i) {
+                    if constexpr (MC) {
+                        new (IndexToPointer(i)) ElementType(Move(list.begin()[i]));
+                    }
+                    else {
+                        new (IndexToPointer(i)) ElementType(list.begin()[i]);
+                    }
+                }
             }
-        }
-        inline ~Vector() noexcept(NTD) {
-            for (u64 i = 0; i < size; ++i) {
-                IndexToPointer(i)->~ElementType();
+            inline Vector(u64 size) :
+                data(new byte[size * align]),
+                capacity(size),
+                size(size) {
+                for (u64 i = 0; i < size; ++i) {
+                    new (IndexToPointer(i)) ElementType();
+                }
             }
-            delete[] data;
-        }
-        inline u64 GetSize() const noexcept {
-            return size;
-        }
-        inline void Append(const ElementType& value) {
-            if (size == capacity) {
-                Reserve(capacity * 2);
+            inline Vector(u64 size, const ElementType& fill) :
+                data(new byte[size * align]),
+                capacity(size),
+                size(size) {
+                for (u64 i = 0; i < size; ++i) {
+                    new (IndexToPointer(i)) ElementType(fill);
+                }
             }
-            new (IndexToPointer(size++)) ElementType(value);
-        }
-        inline void AppendRange(const Vector& values) {
-            if (size + values.size > capacity) {
-                Reserve(capacity * 2);
+            inline ~Vector() noexcept(NTD) {
+                for (u64 i = 0; i < size; ++i) {
+                    IndexToPointer(i)->~ElementType();
+                }
+                delete[] data;
             }
-            for (u64 i = 0; i < values.size; ++i) {
-                new (IndexToPointer(size++)) ElementType(values[i]);
+            inline byte* GetData() noexcept {
+                return data;
             }
-        }
-        inline void Reserve(u64 newCapacity) {
+            inline const byte* GetData() const noexcept {
+                return data;
+            }
+            inline u64 GetCapacity() const noexcept {
+                return capacity;
+            }
+            inline u64 GetSize() const noexcept {
+                return size;
+            }
+            inline bool Empty() const noexcept {
+                return size == 0;
+            }
+            inline u64 Find(const ElementType& value, u64 from) const {
+                for (u64 i = from; i < size; ++i) {
+                    if (operator[](i) == value) {
+                        return i;
+                    }
+                }
+                throw std::logic_error("Value not found");
+            }
+            inline bool TryFind(const ElementType& value, u64 from, u64& out_index) const noexcept {
+                for (u64 i = from; i < size; ++i) {
+                    if (operator[](i) == value) {
+                        out_index = i;
+                        return true;
+                    }
+                }
+                return false;
+            }
+            inline void Append(const ElementType& value) {
+                if (size == capacity) {
+                    Reserve(capacity * 2 + 1);
+                }
+                new (IndexToPointer(size++)) ElementType(value);
+            }
+            inline void AppendRange(const Vector& values) {
+                if (size + values.size > capacity) {
+                    Reserve(capacity * 2);
+                }
+                for (u64 i = 0; i < values.size; ++i) {
+                    new (IndexToPointer(size++)) ElementType(values[i]);
+                }
+            }
+            inline void Insert(u64 index, const ElementType& value) {
+                if (size == capacity) {
+                    Reserve(capacity * 2 + 1);
+                }
+                for (u64 i = size; i > index; --i) {
+                    new (IndexToPointer(i)) ElementType(operator[](i - 1));
+                }
+                new (IndexToPointer(index)) ElementType(value);
+                ++size;
+            }
+            inline void InsertRange(u64 index, const Vector& values) {
+                if (size + values.size > capacity) {
+                    Reserve(capacity * 2);
+                }
+                for (u64 i = size; i > index + values.size - 1; --i) {
+                    new (IndexToPointer(i)) ElementType(operator[](i - 1));
+                }
+                for (u64 i = 0; i < values.size; ++i) {
+                    new (IndexToPointer(index + i)) ElementType(values[i]);
+                }
+                size += values.size;
+            }
+            inline void Reserve(u64 newCapacity) {
             if (newCapacity < capacity) {
                 throw std::invalid_argument("Must reserve larger capacity than current capacity");
             }
@@ -124,7 +174,7 @@ export namespace Engine::Collection {
             data = newData;
             capacity = newCapacity;
         }
-        inline void Resize(u64 newSize) {
+            inline void Resize(u64 newSize) {
             if (newSize > capacity) {
                 Reserve(newSize);
             }
@@ -133,19 +183,19 @@ export namespace Engine::Collection {
             }
             size = newSize;
         }
-        inline ElementType& IndexBoundCheck(u64 index) {
+            inline ElementType& IndexBoundCheck(u64 index) {
             if (index >= size) {
                 throw std::out_of_range("Index out of range");
             }
             return operator[](index);
         }
-        inline const ElementType& IndexBoundCheck(u64 index) const {
+            inline const ElementType& IndexBoundCheck(u64 index) const {
             if (index >= size) {
                 throw std::out_of_range("Index out of range");
             }
             return operator[](index);
         }
-        inline Vector& operator=(const Vector& other) {
+            inline Vector& operator=(const Vector& other) {
             if (this != &other) {
                 for (u64 i = 0; i < size; ++i) {
                     IndexToPointer(i)->~ElementType();
@@ -160,7 +210,7 @@ export namespace Engine::Collection {
             }
             return *this;
         }
-        inline Vector& operator=(Vector&& other) {
+            inline Vector& operator=(Vector&& other) {
             if (this != &other) {
                 for (u64 i = 0; i < size; ++i) {
                     IndexToPointer(i)->~ElementType();
@@ -173,10 +223,10 @@ export namespace Engine::Collection {
             }
             return *this;
         }
-        inline ElementType& operator[](u64 index) {
+            inline ElementType& operator[](u64 index) {
             return *IndexToPointer(index);
         }
-        inline const ElementType& operator[](u64 index) const {
+            inline const ElementType& operator[](u64 index) const {
             return *IndexToPointer(index);
         }
     };
