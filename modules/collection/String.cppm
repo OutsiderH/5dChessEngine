@@ -1,17 +1,22 @@
-module;
-
-#include <stdexcept>
-
 export module Engine.Collection.String;
 
 import Engine.Type.Number;
 import Engine.Type.Util;
+import Engine.Type.Concept;
 import Engine.Collection.Vector;
+import <stdexcept>;
 
 using namespace Engine::Type;
 using namespace Engine::Collection;
 
 namespace Engine::Collection {
+    export inline constexpr u64 CStrLength(const char* cStr) noexcept {
+        u64 result = 0;
+        while (cStr[result] != '\0') {
+            ++result;
+        }
+        return result;
+    }
     export enum class IntStringFormat : u8 {
         BIN,
         OCT,
@@ -95,7 +100,9 @@ namespace Engine::Collection {
         inline String(const String& other) :
             container(other.container) {}
         inline String(String&& other) noexcept :
-            container(Move(other.container)) {}
+            container(TypeMove(other.container)) {}
+        inline String(const char* str) :
+            String(str, CStrLength(str)) {}
         inline String(const char* str, u64 length) {
             container.Reserve(length + 1);
             for (u64 i = 0; i < length; ++i) {
@@ -115,13 +122,28 @@ namespace Engine::Collection {
         inline bool Empty() const noexcept {
             return Length() == 0;
         }
+        inline char& First() noexcept {
+            return container.First();
+        }
+        inline const char& First() const noexcept {
+            return container.First();
+        }
+        inline char& Last() noexcept {
+            return container.Last();
+        }
+        inline const char& Last() const noexcept {
+            return container.Last();
+        }
         inline char* CStr() noexcept {
             return reinterpret_cast<char*>(container.GetData());
         }
         inline const char* CStr() const noexcept {
             return reinterpret_cast<const char*>(container.GetData());
         }
-        inline u64 Find(char value, u64 from) const {
+        inline bool Contains(char value, u64 from = 0) const noexcept {
+            return container.Contains(value, from);
+        }
+        inline u64 Find(char value, u64 from = 0) const {
             return container.Find(value, from);
         }
         inline bool TryFind(char value, u64 from, u64& out_index) const noexcept {
@@ -214,22 +236,44 @@ namespace Engine::Collection {
         }
         inline String& operator=(String&& other) noexcept {
             if (this != &other) {
-                container = Move(other.container);
+                container = TypeMove(other.container);
             }
             return *this;
         }
-        inline String operator+(const String& right) {
+        inline String operator+(const String& right) const {
             String result(*this);
-            result.container.InsertRange(Length(), right.container);
+            result.operator+=(right);
             return result;
         }
         inline String& operator+=(const String& right) {
-            container.InsertRange(Length(), right.container);
+            container.InsertRange(Length(), right.container, right.Length());
             return *this;
         }
         inline String& operator+=(char right) {
             container.Insert(Length(), right);
             return *this;
+        }
+        inline bool operator==(const String& other) const {
+            if (Length() != other.Length()) {
+                return false;
+            }
+            for (u64 i = 0; i < Length(); ++i) {
+                if (container[i] != other.container[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        inline bool operator==(const char* otherCStr) const {
+            if (Length() != CStrLength(otherCStr)) {
+                return false;
+            }
+            for (u64 i = 0; i < Length(); ++i) {
+                if (container[i] != otherCStr[i]) {
+                    return false;
+                }
+            }
+            return true;
         }
         inline char& operator[](u64 index) {
             return container[index];

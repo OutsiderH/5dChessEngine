@@ -1,7 +1,3 @@
-module;
-
-#include <stdexcept>
-
 export module Engine.Game.Board;
 
 import Engine.Type.Number;
@@ -10,6 +6,7 @@ import Engine.Game.Piece;
 import Engine.Collection.Array;
 import Engine.Collection.Vector;
 import Engine.Collection.String;
+import <stdexcept>;
 
 using namespace Engine::Type;
 using namespace Engine::Collection;
@@ -32,7 +29,7 @@ namespace Engine::Game {
             enPassant[1] = other.enPassant[1];
         }
         inline Board(Board&& other) noexcept :
-            pieces(Move(other.pieces)) {
+            pieces(TypeMove(other.pieces)) {
             castling[0] = other.castling[0];
             castling[1] = other.castling[1];
             castling[2] = other.castling[2];
@@ -49,7 +46,7 @@ namespace Engine::Game {
             enPassant[0] = enPassant0;
             enPassant[1] = enPassant1;
         }
-        inline Board(const String& notation) {
+        inline explicit Board(const String& notation) {
             Vector<String> splits = notation.Split(' ');
             if (splits.GetSize() < 3) {
                 throw std::invalid_argument("Invalid notation, insufficient parts");
@@ -66,8 +63,7 @@ namespace Engine::Game {
                         pieceIndex += pieceChar - '0';
                     }
                     else {
-                        Index(pieceIndex, i) = Piece::FromSideRelativeChar(pieceChar);
-                        ++pieceIndex;
+                        Index(pieceIndex++, i) = Piece::FromSideRelativeChar(pieceChar);
                     }
                 }
             }
@@ -100,6 +96,8 @@ namespace Engine::Game {
                     }
                     else if (emptyCount > 0) {
                         str += '0' + emptyCount;
+                        str += pieceChar;
+                        emptyCount = 0;
                     }
                     else {
                         str += pieceChar;
@@ -142,14 +140,5 @@ namespace Engine::Game {
             return *this;
         }
     };
-    export const Board standardBoard({
-        {Piece(Side::White, PieceType::Rook), Piece(Side::White, PieceType::Knight), Piece(Side::White, PieceType::Bishop), Piece(Side::White, PieceType::Queen), Piece(Side::White, PieceType::King), Piece(Side::White, PieceType::Bishop), Piece(Side::White, PieceType::Knight), Piece(Side::White, PieceType::Rook)},
-        {Piece(Side::White, PieceType::Pawn), Piece(Side::White, PieceType::Pawn), Piece(Side::White, PieceType::Pawn), Piece(Side::White, PieceType::Pawn), Piece(Side::White, PieceType::Pawn), Piece(Side::White, PieceType::Pawn), Piece(Side::White, PieceType::Pawn), Piece(Side::White, PieceType::Pawn)},
-        {Piece(), Piece(), Piece(), Piece(), Piece(), Piece(), Piece(), Piece()},
-        {Piece(), Piece(), Piece(), Piece(), Piece(), Piece(), Piece(), Piece()},
-        {Piece(), Piece(), Piece(), Piece(), Piece(), Piece(), Piece(), Piece()},
-        {Piece(), Piece(), Piece(), Piece(), Piece(), Piece(), Piece(), Piece()},
-        {Piece(Side::Black, PieceType::Pawn), Piece(Side::Black, PieceType::Pawn), Piece(Side::Black, PieceType::Pawn), Piece(Side::Black, PieceType::Pawn), Piece(Side::Black, PieceType::Pawn), Piece(Side::Black, PieceType::Pawn), Piece(Side::Black, PieceType::Pawn), Piece(Side::Black, PieceType::Pawn)},
-        {Piece(Side::Black, PieceType::Rook), Piece(Side::Black, PieceType::Knight), Piece(Side::Black, PieceType::Bishop), Piece(Side::Black, PieceType::Queen), Piece(Side::Black, PieceType::King), Piece(Side::Black, PieceType::Bishop), Piece(Side::Black, PieceType::Knight), Piece(Side::Black, PieceType::Rook)}
-    }, true, true, true, true, 0xFF, 0xFF);
+    export const Board standardBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR KQkq -");
 }

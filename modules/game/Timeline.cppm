@@ -26,7 +26,7 @@ namespace Engine::Game {
             boards(other.boards),
             startTime(other.startTime) {}
         inline Timeline(Timeline&& other) noexcept :
-            boards(Move(other.boards)),
+            boards(TypeMove(other.boards)),
             startTime(other.startTime) {}
         inline Timeline(const Board& copyFrom, u32 startTime) :
             boards(1, copyFrom),
@@ -40,13 +40,22 @@ namespace Engine::Game {
         inline u32 BoardCount() const noexcept {
             return boards.GetSize();
         }
+        inline u32 LastBoardIndex() const noexcept {
+            return startTime + BoardCount() - 1;
+        }
+        inline void AppendBoard(const Board& board) {
+            boards.Append(board);
+        }
+        inline void AppendBoard(Board&& board) {
+            boards.Append(TypeMove(board));
+        }
         inline Timeline& operator=(const Timeline& other) {
             boards = other.boards;
             startTime = other.startTime;
             return *this;
         }
         inline Timeline& operator=(Timeline&& other) {
-            boards = Move(other.boards);
+            boards = TypeMove(other.boards);
             startTime = other.startTime;
             return *this;
         }

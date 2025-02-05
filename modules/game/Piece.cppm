@@ -17,8 +17,8 @@ namespace Engine::Game {
     };
     export class Piece {
     private:
-        Side side;
-        PieceType type;
+        Side side = Side::None;
+        PieceType type = PieceType::None;
     public:
         inline static constexpr Piece FromSideRelativeChar(char c) noexcept {
             Piece result;
@@ -76,9 +76,7 @@ namespace Engine::Game {
             }
             return result;
         }
-        inline constexpr Piece() noexcept :
-            side(Side::None),
-            type(PieceType::None) {}
+        inline constexpr Piece() noexcept {}
         inline constexpr Piece(const Piece& other) noexcept :
             side(other.side),
             type(other.type) {}
@@ -114,6 +112,9 @@ namespace Engine::Game {
         }
         inline constexpr bool SameSide(const Piece& other) const noexcept {
             return side == other.side;
+        }
+        inline constexpr bool OppositeSide(const Piece& other) const noexcept {
+            return side == SideFunctions::Opposite(other.side);
         }
         inline constexpr Piece& operator=(const Piece& other) noexcept {
             side = other.side;

@@ -53,5 +53,19 @@ namespace Engine::Game {
                     return false;
             }
         }
+        inline static constexpr Side Opposite(Side side) noexcept {
+            Side result = Side::None;
+            switch (side) {
+                case Side::White:
+                    result = Side::Black;
+                    break;
+                case Side::Black:
+                    result = Side::White;
+                    break;
+                default:
+                    break;
+            }
+            return result;
+        }
     };
 }

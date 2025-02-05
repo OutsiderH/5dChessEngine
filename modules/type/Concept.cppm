@@ -1,5 +1,6 @@
 export module Engine.Type.Concept;
 
+import Engine.Type.Number;
 import Engine.Type.Util;
 
 namespace Engine::Type {
@@ -25,11 +26,11 @@ namespace Engine::Type {
     };
     export template <typename Type>
     concept MoveConstructible = requires(RemoveReference<Type>::Result&& other) {
-        { typename RemoveReference<Type>::Result(Move(other)) } -> SameAs<typename RemoveReference<Type>::Result>;
+        { typename RemoveReference<Type>::Result(TypeMove(other)) } -> SameAs<typename RemoveReference<Type>::Result>;
     };
     export template <typename Type>
     concept NonThrowMoveConstructible = requires(RemoveReference<Type>::Result&& other) {
-        { typename RemoveReference<Type>::Result(Move(other)) } noexcept -> SameAs<typename RemoveReference<Type>::Result>;
+        { typename RemoveReference<Type>::Result(TypeMove(other)) } noexcept -> SameAs<typename RemoveReference<Type>::Result>;
     };
     export template <typename Type>
     concept Destructible = requires(typename RemoveReference<Type>::Result instance) {
@@ -48,19 +49,26 @@ namespace Engine::Type {
         { left = right } noexcept -> SameAs<typename RemoveReference<Type>::Result&>;
     };
     export template <typename Type>
-    concept MoveAssignable = requires(typename RemoveReference<Type>::Result left, typename RemoveReference<Type>::Result && right) {
-        { left = Move(right) } -> SameAs<typename RemoveReference<Type>::Result&>;
+    concept MoveAssignable = requires(typename RemoveReference<Type>::Result left, typename RemoveReference<Type>::Result&& right) {
+        { left = TypeMove(right) } -> SameAs<typename RemoveReference<Type>::Result&>;
     };
     export template <typename Type>
-    concept NonThrowMoveAssignable = requires(typename RemoveReference<Type>::Result left, typename RemoveReference<Type>::Result && right) {
-        { left = Move(right) } noexcept -> SameAs<typename RemoveReference<Type>::Result&>;
+    concept NonThrowMoveAssignable = requires(typename RemoveReference<Type>::Result left, typename RemoveReference<Type>::Result&& right) {
+        { left = TypeMove(right) } noexcept -> SameAs<typename RemoveReference<Type>::Result&>;
     };
     export template <typename Type>
-    concept EqualityComparable = requires(typename RemoveReference<Type>::Result left, typename RemoveReference<Type>::Result right) {
+    concept EqualityComparable = requires(typename RemoveReference<Type>::Result left, const typename RemoveReference<Type>::Result& right) {
         { left == right } -> SameAs<bool>;
     };
     export template <typename Type>
-    concept NonThrowEqualityComparable = requires(typename RemoveReference<Type>::Result left, typename RemoveReference<Type>::Result right) {
+    concept NonThrowEqualityComparable = requires(typename RemoveReference<Type>::Result left, const typename RemoveReference<Type>::Result& right) {
         { left == right } noexcept -> SameAs<bool>;
+    };
+    export template <typename Type>
+    concept IList = requires(typename RemoveReference<Type>::Result instance) {
+        { instance.GetSize() } noexcept -> SameAs<u64>;
+        { instance.First() } noexcept -> SameAs<typename RemoveReference<Type>::Result::_ElementRef>;
+        { instance.Last() } noexcept -> SameAs<typename RemoveReference<Type>::Result::_ElementRef>;
+        { instance[0] } noexcept -> SameAs<typename RemoveReference<Type>::Result::_ElementRef>;
     };
 }

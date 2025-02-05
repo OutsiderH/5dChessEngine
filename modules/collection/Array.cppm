@@ -1,13 +1,10 @@
-module;
-
-#include <initializer_list>
-#include <stdexcept>
-
 export module Engine.Collection.Array;
 
 import Engine.Type.Number;
 import Engine.Type.Concept;
 import Engine.Type.Util;
+import <initializer_list>;
+import <stdexcept>;
 
 using namespace Engine::Type;
 
@@ -22,6 +19,11 @@ namespace Engine::Collection {
         && align >= sizeof(ElementType)
     )
     class Array {
+    public:
+        using _Element = ElementType;
+        using _ElementRef = ElementType&;
+        using _ElementRightRef = ElementType&&;
+        using _ConstElementRef = const ElementType&;
     private:
         static constexpr bool MC = MoveConstructible<ElementType>;
         static constexpr bool NTDC = NonThrowDefaultConstructible<ElementType>;
@@ -49,7 +51,7 @@ namespace Engine::Collection {
         inline Array(Array&& other) noexcept(MC ? NTMC : NTCC) {
             for (u64 i = 0; i < size; ++i) {
                 if constexpr (MC) {
-                    new (IndexToPointer(i)) ElementType(Move(other[i]));
+                    new (IndexToPointer(i)) ElementType(TypeMove(other[i]));
                 }
                 else {
                     new (IndexToPointer(i)) ElementType(other[i]);
@@ -59,7 +61,7 @@ namespace Engine::Collection {
         inline Array(std::initializer_list<ElementType> list) noexcept(MC ? NTMC : NTCC) {
             for (u64 i = 0; i < size; ++i) {
                 if constexpr (MC) {
-                    new (IndexToPointer(i)) ElementType(Move(list.begin()[i]));
+                    new (IndexToPointer(i)) ElementType(TypeMove(list.begin()[i]));
                 }
                 else {
                     new (IndexToPointer(i)) ElementType(list.begin()[i]);
@@ -75,6 +77,21 @@ namespace Engine::Collection {
             for (u64 i = 0; i < size; ++i) {
                 IndexToPointer(i)->~ElementType();
             }
+        }
+        inline u64 GetSize() const noexcept {
+            return size;
+        }
+        inline ElementType& First() noexcept {
+            return operator[](0);
+        }
+        inline const ElementType& First() const noexcept {
+            return operator[](0);
+        }
+        inline ElementType& Last() noexcept {
+            return operator[](size - 1);
+        }
+        inline const ElementType& Last() const noexcept {
+            return operator[](size - 1);
         }
         inline ElementType& IndexBoundCheck(u64 index) {
             if (index >= size) {
@@ -104,7 +121,7 @@ namespace Engine::Collection {
                     ElementType* pointer = IndexToPointer(i);
                     pointer->~ElementType();
                     if constexpr (MC) {
-                        new (pointer) ElementType(Move(other[i]));
+                        new (pointer) ElementType(TypeMove(other[i]));
                     }
                     else {
                         new (pointer) ElementType(other[i]);

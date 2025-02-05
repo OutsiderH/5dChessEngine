@@ -35,6 +35,39 @@
     <ClCompile Include="modules\collection\String.cppm">
       <Filter>modules</Filter>
     </ClCompile>
+    <ClCompile Include="modules\io\Console.cppm">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\game\Position.cppm">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\game\Move.cppm">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\game\TimelineIndex.cppm">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\collection\MutiBranchTree.cppm">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\analysis\MCTSNode.cppm">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\math\Math.cppm">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\analysis\MCTSTreeContainer.cppm">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\collection\Optional.cppm">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\collection\Pair.cppm">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\collection\Map.cppm">
+      <Filter>modules</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="modules">

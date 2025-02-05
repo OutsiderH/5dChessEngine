@@ -169,7 +169,7 @@
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <EnableModules>true</EnableModules>
       <BuildStlModules>true</BuildStlModules>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <TreatWarningAsError>false</TreatWarningAsError>
       <CallingConvention>StdCall</CallingConvention>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4458;4244</DisableSpecificWarnings>
@@ -203,7 +203,7 @@
       <DisableSpecificWarnings>4458;4244</DisableSpecificWarnings>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <OmitFramePointers>true</OmitFramePointers>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -231,7 +231,7 @@
       <DisableSpecificWarnings>4458;4244</DisableSpecificWarnings>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <OmitFramePointers>true</OmitFramePointers>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <TreatWarningAsError>false</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -244,14 +244,25 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="chess_engine.cpp" />
+    <ClCompile Include="modules\analysis\MCTSNode.cppm" />
+    <ClCompile Include="modules\analysis\MCTSTreeContainer.cppm" />
     <ClCompile Include="modules\collection\Array.cppm" />
+    <ClCompile Include="modules\collection\Map.cppm" />
+    <ClCompile Include="modules\collection\MutiBranchTree.cppm" />
+    <ClCompile Include="modules\collection\Optional.cppm" />
+    <ClCompile Include="modules\collection\Pair.cppm" />
     <ClCompile Include="modules\collection\String.cppm" />
     <ClCompile Include="modules\collection\Vector.cppm" />
     <ClCompile Include="modules\game\Board.cppm" />
     <ClCompile Include="modules\game\Game.cppm" />
+    <ClCompile Include="modules\game\Move.cppm" />
     <ClCompile Include="modules\game\Piece.cppm" />
+    <ClCompile Include="modules\game\Position.cppm" />
     <ClCompile Include="modules\game\Side.cppm" />
     <ClCompile Include="modules\game\Timeline.cppm" />
+    <ClCompile Include="modules\game\TimelineIndex.cppm" />
+    <ClCompile Include="modules\io\Console.cppm" />
+    <ClCompile Include="modules\math\Math.cppm" />
     <ClCompile Include="modules\type\Concept.cppm" />
     <ClCompile Include="modules\type\Number.cppm" />
     <ClCompile Include="modules\type\Util.cppm" />

@@ -52,11 +52,11 @@ namespace Engine::Type {
         constexpr static bool Result = true;
     };
     export template <typename Type>
-    inline constexpr RemoveReference<Type>::Result&& Move(Type&& value) noexcept {
+    inline constexpr RemoveReference<Type>::Result&& TypeMove(Type&& value) noexcept {
         return static_cast<RemoveReference<Type>::Result&&>(value);
     }
     export template <typename Type>
-    inline constexpr Type&& Value() noexcept {
+    inline constexpr Type&& TypeValue() noexcept {
         static_assert(false, "This function can not be called at evaluated expression");
     }
     export inline constexpr bool IsDigit(char c) noexcept {

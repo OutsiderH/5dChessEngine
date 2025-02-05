@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Addition
+
+~AutoRecover.5dChessEngine.vcxproj*
